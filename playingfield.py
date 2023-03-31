@@ -107,7 +107,7 @@ class Health_Status(Enum):
 
 
 class Person:
-    def __init__(self, health: float = 100, age: int = 20, infection_status: Health_Status = Health_Status.HEALTHY,regeneration: Regen = Regen.LEVEL_3, social_factor: int = 15, fight_back_power: float = 1,immunocompromised: bool = False, errands: int = 0) -> None:
+    def __init__(self, health: float = 100, age: int = 20, infection_status: Health_Status = Health_Status.HEALTHY,regeneration: Regen = Regen.LEVEL_3, social_factor: int = 15, fight_back_power: float = 1,immunocompromised: bool = False, errands: int = 0, immunity: bool = False) -> None:
         self.health = health
         self.age = age
         self.infection_status = infection_status
@@ -121,6 +121,7 @@ class Person:
         self.days_asymp: int = 0
         self.days_symp: int = 0
         self.contact_list:List['Person'] = []
+        self.immunity: bool = immunity
 
     def __str__(self) -> str:
         return f"Person Object, health:{self.health}, age:{self.age}, infection_status:{self.infection_status.name}, regeneration:{Regen(self.regeneration).name}, talked to {len(self.contact_list)} other people today"
@@ -161,7 +162,7 @@ class Person:
         '''Does the bulk of updating the person for each day.'''
 
         # Checking for the transition between healthy - asymptomatic
-        if self.infection_status == Health_Status.HEALTHY:
+        if self.infection_status == Health_Status.HEALTHY and not self.immunity:
             self.find_places()
             self.find_people_contacts(playing_field.population)
             self.find_infection_risk()
@@ -198,6 +199,7 @@ class Person:
             if self.days_symp >= playing_field.pathogen.longevity_factor:
                 self.infection_status = Health_Status.HEALTHY
                 self.days_symp = 0
+                self.immunity = True
 
         # Clearing Daily information
         self.contact_list=[]

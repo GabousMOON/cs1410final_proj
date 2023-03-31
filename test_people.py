@@ -111,6 +111,21 @@ def test_check_for_infection_recovery():
     subject.check_for_infection(tester_field)
     assert subject.health == 100
 
+def test_gaining_immunity():
+    person = Person(health= 50, infection_status=Health_Status.SYMPTOMATIC)
+    tester_field = PlayingField()
+    tester_field.populate(100, 0, 0)
+    tester_field.add_pathogen(Baddy.BACTERIA, longevity_factor=2)
+    person.check_for_infection(tester_field)
+    person.check_for_infection(tester_field)
+    person.check_for_infection(tester_field)
+    assert person.days_symp == 0
+    assert person.infection_status == Health_Status.HEALTHY
+    assert person.immunity == True
+
+
+
+
 
 
 

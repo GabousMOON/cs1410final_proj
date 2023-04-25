@@ -291,6 +291,8 @@ class OptionsPage(tk.Frame):
         run_sim_button.grid(row=5, column=0, sticky='sw')
         people_options_frame.grid_rowconfigure(5, weight=7)
 
+    def run_simulation(self):
+        pass
 
 
 

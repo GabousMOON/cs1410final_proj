@@ -3,6 +3,8 @@ from tkinter import ttk
 from tkinter.constants import DISABLED, NORMAL
 import pathogen
 from playingfield import *
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 '''
@@ -209,31 +211,6 @@ class OptionsPage(tk.Frame):
         )
         self.path_name_entry.grid(row = 2, column = 1, sticky='e', padx=(0, 10), pady=10)
 
-
-        # Damage Factor #
-        self.damage_factor_var = tk.StringVar()
-        self.damage_factor_label = ttk.Label(
-            self.patho_options_frame, text = "Damage Factor: ", style='options_labels.TLabel'
-        )
-        self.damage_factor_label.grid(row=3, column = 0, sticky='w', padx=(10, 0), pady=10)
-        self.damage_factor_entry = ttk.Entry(
-            self.patho_options_frame, textvariable=self.damage_factor_var
-        )
-        self.damage_factor_entry.grid(row = 3, column = 1, sticky='e', padx=(0, 10), pady=10)
-
-
-        # Cure Defense
-        self.cure_defense_var = tk.StringVar()
-        self.cure_defense_label = ttk.Label(
-            self.patho_options_frame, text = "Cure Defense: ", style='options_labels.TLabel'
-        )
-        self.cure_defense_label.grid(row=4, column = 0, sticky='w', padx=(10, 0), pady=10)
-        self.cure_defense_entry = ttk.Entry(
-            self.patho_options_frame, textvariable=self.cure_defense_var
-        )
-        self.cure_defense_entry.grid(row = 4, column = 1, sticky='e', padx=(0, 10), pady=10)
-
-
         # Incubation Length #
         self.incubation_len_var = tk.StringVar()
         self.incubation_len_label = ttk.Label(
@@ -271,19 +248,7 @@ class OptionsPage(tk.Frame):
         self.asymptom_infect_entry.grid(row = 7, column = 1, sticky='e', padx=(0, 10), pady=10)
 
 
-
-        # Surface Infectability Factor #
-        self.surface_infect_var = tk.StringVar()
-        self.surface_infect_label = ttk.Label(
-            self.patho_options_frame, text = "Surface Power: ", style='options_labels.TLabel'
-        )
-        self.surface_infect_label.grid(row=8, column = 0, sticky='w', padx=(10, 0), pady=10)
-        self.surface_infect_entry = ttk.Entry(
-            self.patho_options_frame, textvariable=self.surface_infect_var
-        )
-        self.surface_infect_entry.grid(row = 8, column = 1, sticky='e', padx=(0, 10), pady=10)
-
-        # Infection Length
+        # Infection Length #
         self.path_len_var = tk.StringVar()
         self.path_len_label = ttk.Label(
             self.patho_options_frame, text = "Infection Length ", style='options_labels.TLabel'
@@ -295,7 +260,7 @@ class OptionsPage(tk.Frame):
         self.path_len_entry.grid(row = 9, column = 1, sticky='e', padx=(0, 10), pady=10)
 
 
-        # Run Simulation Button
+        # Run Simulation Button #
         self.run_sim_button = ttk.Button(
             self.people_options_frame, text="Run Simulation", style='run.TButton', command=self.run_simulation
         )
@@ -325,13 +290,10 @@ class OptionsPage(tk.Frame):
         )
 
     def run_simulation(self):
-        pass
-
-
-
-
-
-
+        self.generate_population()
+        self.generate_virus()
+        while field.healthy_people_count != len(field.population):
+            field.update()
 
 
 class GraphPage(tk.Frame):
@@ -380,6 +342,21 @@ class GraphPage(tk.Frame):
             sticky='nsew'
 
         )
+
+        self.graph_frame = tk.Frame(self)
+        self.graph_frame.pack(side=tk.TOP, fill='both')
+        self.figure = plt.figure(figsize=(6,5), dpi=100)
+        self.ax = self.figure.add_subplot(111) #type: ignore
+        self.canvas = FigureCanvasTkAgg(self.figure,self.graph_frame)
+        self.df = field.hist_pop_data.show()
+        self.df.plot(legend=True, ax=self.ax)
+        self.ax.set_title('Healthy Population over time')
+        self.canvas.draw()
+        self.widg = self.canvas.get_tk_widget()
+        self.widg.pack()
+
+
+
 
 class TablePage(tk.Frame):
     def __init__(self, parent, controller):

@@ -3,9 +3,11 @@ from tkinter import ttk
 from tkinter.constants import DISABLED, NORMAL
 import pathogen
 from playingfield import *
+import matplotlib
 import matplotlib.pyplot as plt
+matplotlib.use('TkAgg')
+from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
 
 '''
      This is going to be the place where I process all of the Graphical User interface stuff
@@ -294,6 +296,7 @@ class OptionsPage(tk.Frame):
         self.generate_virus()
         while field.healthy_people_count != len(field.population):
             field.update()
+            print(field.healthy_people_count, len(field.population))
 
 
 class GraphPage(tk.Frame):
@@ -343,17 +346,44 @@ class GraphPage(tk.Frame):
 
         )
 
-        self.graph_frame = tk.Frame(self)
-        self.graph_frame.pack(side=tk.TOP, fill='both')
-        self.figure = plt.figure(figsize=(6,5), dpi=100)
-        self.ax = self.figure.add_subplot(111) #type: ignore
-        self.canvas = FigureCanvasTkAgg(self.figure,self.graph_frame)
-        self.df = field.hist_pop_data.show()
-        self.df.plot(legend=True, ax=self.ax)
-        self.ax.set_title('Healthy Population over time')
+        plotbutton = ttk.Button(
+            self, text = "Plot", command= self.plot
+        )
+        plotbutton.pack()
+
+        self.graph_frame = ttk.Frame(self)
+        self.graph_frame.pack()
+        self.fig = Figure(figsize=(5,5), dpi=100)
+        self.plot1 = self.fig.add_subplot(111)
+        self.plot1.set_xlabel('Days')
+        self.plot1.set_ylabel('Healthy Counter')
+        self.canvas = FigureCanvasTkAgg(self.fig, self.graph_frame)
         self.canvas.draw()
-        self.widg = self.canvas.get_tk_widget()
-        self.widg.pack()
+        self.canvas.get_tk_widget().pack()
+
+    def plot(self):
+        healthy_vals = field.hist_pop_data.show()['Healthy']
+        asympt_vals = field.hist_pop_data.show()['Asymptomatic']
+        sympt_vals = field.hist_pop_data.show()['Symptomatic']
+        self.graph_frame.destroy()
+        self.graph_frame = ttk.Frame(self)
+        self.graph_frame.pack()
+        self.fig = Figure(figsize=(5,5), dpi = 100)
+        self.plot1 = self.fig.add_subplot(111)
+        self.plot1.plot(healthy_vals)
+        self.plot1.set_xlabel('Days')
+        self.plot1.set_ylabel('Healthy Counter')
+        self.canvas = FigureCanvasTkAgg(self.fig, self.graph_frame)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack()
+
+
+
+
+
+
+
+
 
 
 

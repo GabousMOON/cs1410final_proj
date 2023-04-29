@@ -68,11 +68,11 @@ class windows(tk.Tk):
         # We will now create a dictionary of frames
         self.frames = {}
         # we'll create the frames themselves later but let's add the components to the dictionary.
-        for F in (OptionsPage, GraphPage, TablePage):
-            frame = F(container, self)
+        for layer in (OptionsPage, GraphPage, TablePage):
+            frame = layer(container, self)
 
             # the windows class acts as the root window for the frames.
-            self.frames[F] = frame
+            self.frames[layer] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
         # Using a method to switch frames

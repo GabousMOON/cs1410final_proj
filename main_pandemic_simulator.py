@@ -401,14 +401,16 @@ class GraphPage(tk.Frame):
         health_initial = field.hist_pop_data.show()['Healthy'][0]
         asymp_initial = field.hist_pop_data.show()['Asymptomatic'][0]
         symp_initial = field.hist_pop_data.show()['Symptomatic'][0]
+        pathogen = field.pathogen
         field.clear_data()
         field.population = []
         field.populate(healthy_people= health_initial, asymp_people=asymp_initial, symp_people=symp_initial)
+        field.add_pathogen(pathogen.type, pathogen.name, pathogen.damage_factor, pathogen.cure_defense, pathogen.longevity_factor, pathogen.incubation_len, pathogen.symptomatic_infectability, pathogen.asymptomatic_infectability, pathogen.surface_infect_factor)
         while field.healthy_people_count != len(field.population):
             field.update()
         self.plot()
 
-        
+
 
 class TablePage(tk.Frame):
     def __init__(self, parent, controller):

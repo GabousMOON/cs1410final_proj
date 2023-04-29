@@ -455,8 +455,39 @@ class TablePage(tk.Frame):
             row = 0 , column = 1,
             padx = 0, pady = 0,
             sticky='nsew'
-
         )
+
+        buttons_frame = ttk.Frame(self)
+        buttons_frame.pack(fill='x')
+        plotbutton = ttk.Button(
+            buttons_frame, text = "Show Table", command= self.show_table
+        )
+        plotbutton.pack(side='left')
+        rerun_buttom = ttk.Button(
+            buttons_frame, text="Rerun simulation", command=self.rerun
+        )
+        rerun_buttom.pack(side='left')
+
+        self.table_field = ttk.Frame(self)
+        self.table_field.pack(fill='both', expand=1, anchor='center')
+        self.table_text = ttk.Label(master=self.table_field)
+        self.table_text.pack()
+
+    def show_table(self):
+        self.table_text.configure(text=field.hist_pop_data.show().to_string(col_space=[5, 20, 5], justify='right', max_rows=30))
+
+    def rerun(self):
+        health_initial = field.hist_pop_data.show()['Healthy'][0]
+        asymp_initial = field.hist_pop_data.show()['Asymptomatic'][0]
+        symp_initial = field.hist_pop_data.show()['Symptomatic'][0]
+        pathogen = field.pathogen
+        field.clear_data()
+        field.population = []
+        field.populate(healthy_people= health_initial, asymp_people=asymp_initial, symp_people=symp_initial)
+        field.add_pathogen(pathogen.type, pathogen.name, pathogen.damage_factor, pathogen.cure_defense, pathogen.longevity_factor, pathogen.incubation_len, pathogen.symptomatic_infectability, pathogen.asymptomatic_infectability, pathogen.surface_infect_factor)
+        while field.healthy_people_count != len(field.population):
+            field.update()
+        self.show_table()
 
 
 if __name__ == "__main__":

@@ -46,11 +46,15 @@ class windows(tk.Tk):
             "options_labels.TLabel", font=('Orbitron', 15), background='light blue'
 
         )
+        style.configure(
+            "grid.TLabel", font=('Orbitron', 11), background='light blue', padx=20, anchor='right', justify='left'
+
+        )
 
 
 
         # creating a frame and assigning it to container
-        container = tk.Frame(self)
+        container = tk.Frame(self, background='light blue')
         # specifying the region where the frame is packed in root
         container.pack(fill=tk.BOTH)
 
@@ -474,7 +478,7 @@ class TablePage(tk.Frame):
         self.table_text.pack()
 
     def show_table(self):
-        self.table_text.configure(text=field.hist_pop_data.show().to_string(col_space=[5, 20, 5], justify='right', max_rows=30))
+        self.table_text.configure(text=field.hist_pop_data.show().to_string(max_rows=24), style='grid.TLabel')
 
     def rerun(self):
         health_initial = field.hist_pop_data.show()['Healthy'][0]

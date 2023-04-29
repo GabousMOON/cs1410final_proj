@@ -265,17 +265,28 @@ class OptionsPage(tk.Frame):
         )
         self.path_len_entry.grid(row = 9, column = 1, sticky='e', padx=(0, 10), pady=10)
 
-
+        self.help_label = ttk.Label(self.people_options_frame, text='''
+Use Integers for Each value except for pathogen name.
+Simulation works by having each person meet up with
+Social Factor amount of people each day.
+Each person they meet will either add SYMPTOMATIC POWER
+amount of points or ASYMPTOMATIC POWER
+amount of points based on if that person is
+symptomatic or not. If the person is HEALTHY and
+the threshold of 50 points is reached,
+they now have an 80% chance of becoming infected.
+Simulation goes until everyone has immunity.''', style='grid.TLabel')
+        self.help_label.grid(row=5, column = 0, columnspan=2)
         # Run Simulation Button #
         self.run_sim_button = ttk.Button(
             self.people_options_frame, text="Run Simulation", style='run.TButton', command=self.run_simulation
         )
-        self.run_sim_button.grid(row=5, column=0, sticky='sw')
+        self.run_sim_button.grid(row=6, column=0, sticky='sw')
         self.people_options_frame.grid_rowconfigure(5, weight=8)
         self.progress_bar = ttk.Label(
             self.people_options_frame, style='options_labels.TLabel'
         )
-        self.progress_bar.grid(row=5, column = 1, sticky='se')
+        self.progress_bar.grid(row=6, column = 1, sticky='se')
 
     def generate_population(self):
         healthy_people = int(self.health_count_entry.get()) if self.health_count_entry.get().isnumeric() else 0

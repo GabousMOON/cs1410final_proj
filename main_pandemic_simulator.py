@@ -52,7 +52,7 @@ class windows(tk.Tk):
         # creating a frame and assigning it to container
         container = tk.Frame(self)
         # specifying the region where the frame is packed in root
-        container.pack(side=tk.TOP, fill=tk.BOTH)
+        container.pack(fill=tk.BOTH)
 
         # configuring the location of the container using grid
         container.grid_rowconfigure(0, weight=1)
@@ -267,7 +267,11 @@ class OptionsPage(tk.Frame):
             self.people_options_frame, text="Run Simulation", style='run.TButton', command=self.run_simulation
         )
         self.run_sim_button.grid(row=5, column=0, sticky='sw')
-        self.people_options_frame.grid_rowconfigure(5, weight=7)
+        self.people_options_frame.grid_rowconfigure(5, weight=8)
+        self.progress_bar = ttk.Label(
+            self.people_options_frame, style='options_labels.TLabel'
+        )
+        self.progress_bar.grid(row=5, column = 1, sticky='se')
 
     def generate_population(self):
         healthy_people = int(self.health_count_entry.get()) if self.health_count_entry.get().isnumeric() else 0
@@ -292,11 +296,13 @@ class OptionsPage(tk.Frame):
         )
 
     def run_simulation(self):
+        field.clear_data()
         self.generate_population()
         self.generate_virus()
+        self.progress_bar.config(text="Loading")
         while field.healthy_people_count != len(field.population):
             field.update()
-            print(field.healthy_people_count, len(field.population))
+        self.progress_bar.config(text='Finished!')
 
 
 class GraphPage(tk.Frame):
@@ -346,20 +352,28 @@ class GraphPage(tk.Frame):
 
         )
 
+        buttons_frame = ttk.Frame(self)
+        buttons_frame.pack(fill='x')
         plotbutton = ttk.Button(
-            self, text = "Plot", command= self.plot
+            buttons_frame, text = "Plot", command= self.plot
         )
-        plotbutton.pack()
+        plotbutton.pack(side='left')
+        rerun_buttom = ttk.Button(
+            buttons_frame, text="Rerun simulation", command=self.rerun
+        )
+        rerun_buttom.pack(side='left')
+
 
         self.graph_frame = ttk.Frame(self)
-        self.graph_frame.pack()
-        self.fig = Figure(figsize=(5,5), dpi=100)
+        self.graph_frame.pack(fill='both', expand=1)
+        self.fig = Figure(figsize=(7,5), dpi=100)
         self.plot1 = self.fig.add_subplot(111)
         self.plot1.set_xlabel('Days')
         self.plot1.set_ylabel('Healthy Counter')
         self.canvas = FigureCanvasTkAgg(self.fig, self.graph_frame)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack()
+
 
     def plot(self):
         healthy_vals = field.hist_pop_data.show()['Healthy']
@@ -367,32 +381,44 @@ class GraphPage(tk.Frame):
         sympt_vals = field.hist_pop_data.show()['Symptomatic']
         self.graph_frame.destroy()
         self.graph_frame = ttk.Frame(self)
-        self.graph_frame.pack()
-        self.fig = Figure(figsize=(5,5), dpi = 100)
+        self.graph_frame.pack(fill='both', expand=1)
+        self.fig = Figure(figsize=(7,5), dpi = 100)
         self.plot1 = self.fig.add_subplot(111)
-        self.plot1.plot(healthy_vals)
+        self.plot1.grid(visible=True, color='r')
+        self.plot1.plot(sympt_vals)
+        self.plot1.set_xlim(xmin=0, xmax=field.day_counter+1)
         self.plot1.set_xlabel('Days')
-        self.plot1.set_ylabel('Healthy Counter')
+        self.plot1.set_ybound(lower=0)
+        self.plot1.set_ylabel('Symptomatic Counter')
+        self.plot1.text(1, 0.9, f'Simulation took {field.day_counter} days to finish', horizontalalignment='right',verticalalignment='center', transform = self.plot1.transAxes)
+        self.plot1.set_title(f"{field.pathogen.name} Infections over Time")
         self.canvas = FigureCanvasTkAgg(self.fig, self.graph_frame)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack()
 
 
+    def rerun(self):
+        health_initial = field.hist_pop_data.show()['Healthy'][0]
+        asymp_initial = field.hist_pop_data.show()['Asymptomatic'][0]
+        symp_initial = field.hist_pop_data.show()['Symptomatic'][0]
+        field.clear_data()
+        field.population = []
+        field.populate(healthy_people= health_initial, asymp_people=asymp_initial, symp_people=symp_initial)
+        while field.healthy_people_count != len(field.population):
+            field.update()
+        self.plot()
 
-
-
-
-
-
-
-
-
+        
 
 class TablePage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg= 'light blue')
         nav_bar = tk.Frame(self, bg='light blue')
-        nav_bar.grid(row = 0, column = 0, sticky='nsew')
+        nav_bar.pack(side = tk.TOP, fill='x')
+        nav_bar.grid_columnconfigure(0, weight=1)
+        nav_bar.grid_columnconfigure(1, weight=1)
+        nav_bar.grid_columnconfigure(2, weight=1)
+
         label = ttk.Button(
             nav_bar, text="Table",
             state=DISABLED,

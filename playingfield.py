@@ -84,6 +84,13 @@ class PlayingField():
 
         self.day_counter += 1
 
+    def clear_data(self):
+        self.day_counter = 0
+        self.hist_pop_data.data['Healthy'] = []
+        self.hist_pop_data.data['Asymptomatic'] = []
+        self.hist_pop_data.data['Symptomatic'] = []
+
+
 field = PlayingField()
 
 class Regen(Enum):
@@ -179,7 +186,11 @@ class Person:
 
             # Assessing if transition from healthy to asymptomatic is true
             if infection_points >= self.contract_risk.value:
-                self.infection_status = Health_Status.ASYMPTOMATIC
+                choice = np.random.choice([1, 2], p=[0.3, 0.7])
+                if choice == 1:
+                    self.infection_status = Health_Status.HEALTHY
+                elif choice == 2:
+                    self.infection_status = Health_Status.ASYMPTOMATIC
             elif self.health < 100 and self.infection_status == Health_Status.HEALTHY:
                 self.health += self.regeneration.value
                 if self.health >= 100 and self.infection_status == Health_Status.HEALTHY:
